@@ -6,6 +6,8 @@ A word clock for the ESP32-2432S028R (CYD). Displays time as highlighted words i
 Ported from Brett Oliver's wordclock_v4_9 (Arduino Nano + 16×16 MAX7219 LED matrix).
 Same grid layout and word logic — adapted for the CYD's ILI9341 TFT display.
 
+**Repository:** https://github.com/anthonyjclarke/CYD_WordClock
+
 ## Hardware
 
 ESP32-2432S028R (Cheap Yellow Display) — ILI9341 240×320, XPT2046 touch, LDR.

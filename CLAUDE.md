@@ -1,5 +1,7 @@
 # CYD_WordClock
 
+**Repository:** https://github.com/anthonyjclarke/CYD_WordClock
+
 ## Project
 
 A word clock for the ESP32 CYD (ESP32-2432S028R). Displays time as highlighted words
