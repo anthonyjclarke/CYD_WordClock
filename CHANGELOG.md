@@ -4,7 +4,8 @@
 
 ### Added
 - Initial release: word clock on CYD ILI9341 240×320 portrait display
-- 16×14 letter grid ported from Brett Oliver wordclock_v4_9 (Arduino/MAX7219)
+- 16×14 letter grid ported from Brett Oliver's Word Clock wordclock_v4_9 (Arduino/MAX7219)
+  — https://www.brettoliver.org.uk/Word_Clock/Word_Clock.htm
 - Same `{row, col, length}` PROGMEM word descriptor structure as reference
 - Same `showTimeWords()` logic: exact-minute display (not 5-min rounding)
 - MINUTE/MINUTES suffix, time-of-day context (morning/afternoon/evening/night)

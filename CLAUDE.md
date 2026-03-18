@@ -8,9 +8,10 @@ A word clock for the ESP32 CYD (ESP32-2432S028R). Displays time as highlighted w
 in a 16-column × 14-row letter grid on the ILI9341 240×320 TFT in portrait orientation.
 Example: "THE TIME IS FOURTEEN MINUTES PAST THREE IN THE AFTERNOON".
 
-Word clock logic is ported from Brett Oliver's wordclock_v4_9 (Arduino Nano + 16×16
-MAX7219 LED matrix). The same `{row, col, length}` PROGMEM word descriptor pattern
-and `showTimeWords()` logic are preserved. The LED matrix is replaced by a TFT_eSprite.
+Word clock logic is ported from Brett Oliver's Word Clock (wordclock_v4_9, Arduino Nano +
+16×16 MAX7219 LED matrix): https://www.brettoliver.org.uk/Word_Clock/Word_Clock.htm
+The same `{row, col, length}` PROGMEM word descriptor pattern and `showTimeWords()` logic
+are preserved. The LED matrix is replaced by a TFT_eSprite.
 
 Time is exact-minute (not 5-min rounded). MINUTE/MINUTES suffix is shown. Time-of-day
 (morning/afternoon/evening/night) is shown on rows 12–13 of the grid.

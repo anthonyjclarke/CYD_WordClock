@@ -1,6 +1,7 @@
 #pragma once
 // wordclock.h — letter grid, word-map, time-to-words logic
-// Architecture ported from Brett Oliver wordclock_v4_9 (Arduino/MAX7219)
+// Ported from Brett Oliver's Word Clock (wordclock_v4_9, Arduino/MAX7219)
+// https://www.brettoliver.org.uk/Word_Clock/Word_Clock.htm
 // Same {row, col, length} PROGMEM word descriptor pattern, same showTimeWords() logic.
 
 #include <Arduino.h>

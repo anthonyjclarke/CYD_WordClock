@@ -8,7 +8,8 @@
 #include <ezTime.h>
 
 // ── Letter grid ───────────────────────────────────────────────────────────────
-// 16-column × 14-row grid ported from Brett Oliver wordclock_v4_9 physical matrix.
+// 16-column × 14-row grid ported from Brett Oliver's Word Clock (wordclock_v4_9).
+// Original project: https://www.brettoliver.org.uk/Word_Clock/Word_Clock.htm
 // Row/col/len word positions are preserved exactly. Shared letters (e.g. TWO/ONE
 // sharing 'O' at row 8 col 2) are preserved as in the original.
 //

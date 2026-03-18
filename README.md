@@ -3,7 +3,8 @@
 A word clock for the ESP32-2432S028R (CYD). Displays time as highlighted words in a
 16×14 letter grid: "THE TIME IS FOURTEEN MINUTES PAST THREE IN THE AFTERNOON".
 
-Ported from Brett Oliver's wordclock_v4_9 (Arduino Nano + 16×16 MAX7219 LED matrix).
+Ported from [Brett Oliver's Word Clock](https://www.brettoliver.org.uk/Word_Clock/Word_Clock.htm)
+(wordclock_v4_9, Arduino Nano + 16×16 MAX7219 LED matrix).
 Same grid layout and word logic — adapted for the CYD's ILI9341 TFT display.
 
 **Repository:** https://github.com/anthonyjclarke/CYD_WordClock
