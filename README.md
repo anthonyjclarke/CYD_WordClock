@@ -27,6 +27,16 @@ Exact-minute time phrases — e.g. "THE TIME IS THREE MINUTES PAST TWO IN THE AF
 
 Touch and hold anywhere for ≥600ms to cycle brightness (4 steps).
 
+### Grid layout
+
+![Word clock grid layout](images/Word_Display.jpg)
+
+### Sample time — 2:14 PM
+
+"THE TIME IS FOURTEEN MINUTES PAST THREE IN THE AFTERNOON"
+
+![Sample time display](images/Word_Display_Sample.jpg)
+
 ## Changing Timezone
 
 Edit `NTP_TIMEZONE` and `NTP_POSIX_FALLBACK` in `include/config.h`.
