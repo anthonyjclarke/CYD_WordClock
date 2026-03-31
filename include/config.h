@@ -5,7 +5,8 @@
 #define FW_VERSION          "1.0"
 
 // ── Display ───────────────────────────────────────────────────────────────────
-#define SCREEN_ROTATION     0           // 0 = portrait (240×320)
+#define DISPLAY_FLIP        1           // 1 = flip portrait 180° (USB connector at top)
+#define SCREEN_ROTATION     (DISPLAY_FLIP ? 2 : 0)  // portrait: 0 = USB at bottom, 2 = USB at top
 #define BRIGHTNESS_DEFAULT  180         // 0–255 backlight PWM
 
 // ── Word Grid Geometry ────────────────────────────────────────────────────────
@@ -67,6 +68,13 @@
 #define BRIGHTNESS_MAX      255
 #define LDR_SAMPLES         8
 #define LDR_UPDATE_MS       5000
+
+// ── Animations ────────────────────────────────────────────────────────────────
+#define ANIM_NONE           0           // instant update, no animation
+#define ANIM_FADE           1           // fade out old words then fade in new words
+#define ANIM_TYPE           ANIM_FADE   // select animation style
+#define ANIM_FADE_STEPS     14          // steps per fade phase (0→steps inclusive)
+#define ANIM_FADE_MS        18          // ms per step (~270ms per phase, ~540ms total)
 
 // ── Debug ─────────────────────────────────────────────────────────────────────
 #ifndef DEBUG_LEVEL

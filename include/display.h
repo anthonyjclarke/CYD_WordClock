@@ -5,6 +5,7 @@
 
 extern TFT_eSPI tft;
 extern TFT_eSprite gridSprite;  // 240×266 word grid, 8-bit depth
+extern TFT_eSprite statusSprite;
 
 // Resolved colour constants — set in initColours()
 extern uint16_t colourLit;

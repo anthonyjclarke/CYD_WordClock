@@ -65,7 +65,10 @@ include/
 ```
 
 Rendering: `TFT_eSprite gridSprite` (240×266px, 8-bit depth = 63.8 KB).
-Font: `FreeSansBold9pt7b` (Adafruit GFX free font, available via `-DLOAD_GFXFF=1`).
+Status strip: separate `TFT_eSprite statusSprite` (240×52px, 8-bit depth) to avoid
+per-second flicker on the physical panel.
+Font: `FreeMonoBold9pt7b` for the main letter grid, `FreeSansBold9pt7b` for the
+status strip (Adafruit GFX free fonts, available via `-DLOAD_GFXFF=1`).
 Each cell draws one letter centred with `MC_DATUM`. Lit cells use `colourLit` (warm white);
 dim cells use `colourDim` (dark grey).
 
@@ -79,6 +82,7 @@ dim cells use `colourDim` (dark grey).
   EIGHT/FIVE share 'E' at R10 col 8, etc. This mirrors the physical LED matrix design.
 - "A QUARTER": lights the 'A' at R0 col 13, which is the A in HALF. Faithful to original.
 - Sprite `setColorDepth(8)` required — 16-bit at 240×266 = 127 KB (fails on CYD without PSRAM).
+- Status strip redraws are buffered and skipped when the formatted text has not changed.
 - Touch: VSPI bus (CLK=25, MISO=39, MOSI=32, CS=33). Long press ≥600ms cycles brightness.
 
 ## Known Issues / Quirks

@@ -6,6 +6,7 @@
 // No explicit include needed — use &FreeSansBold9pt7b directly.
 
 TFT_eSprite gridSprite(&tft);
+TFT_eSprite statusSprite(&tft);
 
 uint8_t  currentBrightness = BRIGHTNESS_DEFAULT;
 uint16_t colourLit = 0;
@@ -25,6 +26,14 @@ void initColours() {
               ESP.getFreeHeap(), ESP.getMaxAllocHeap());
   }
   gridSprite.fillSprite(colourBg);
+
+  statusSprite.setColorDepth(8);
+  buf = statusSprite.createSprite(240, STATUS_HEIGHT);
+  if (!buf) {
+    DBG_ERROR("statusSprite alloc FAILED — heap %d bytes, max block %d bytes",
+              ESP.getFreeHeap(), ESP.getMaxAllocHeap());
+  }
+  statusSprite.fillSprite(colourBg);
 
   tft.fillScreen(colourBg);
 
@@ -90,11 +99,10 @@ void drawStatusStrip(uint8_t h, uint8_t m, uint8_t s,
   static const char *dayAbbr[7]  = {"SUN","MON","TUE","WED","THU","FRI","SAT"};
   static const char *monAbbr[12] = {"JAN","FEB","MAR","APR","MAY","JUN",
                                      "JUL","AUG","SEP","OCT","NOV","DEC"};
+  static char lastTimeBuf[9] = "";
+  static char lastDateBuf[16] = "";
 
   uint16_t statusColour = tft.color565(COLOUR_STATUS_R, COLOUR_STATUS_G, COLOUR_STATUS_B);
-
-  // Fill status strip background
-  tft.fillRect(0, STATUS_Y, 240, STATUS_HEIGHT, colourBg);
 
   // Time line: HH:MM:SS centred
   char timeBuf[9];
@@ -109,14 +117,28 @@ void drawStatusStrip(uint8_t h, uint8_t m, uint8_t s,
     snprintf(dateBuf, sizeof(dateBuf), "--:--:--");
   }
 
+  if (strcmp(timeBuf, lastTimeBuf) == 0 && strcmp(dateBuf, lastDateBuf) == 0) {
+    return;
+  }
+
+  strncpy(lastTimeBuf, timeBuf, sizeof(lastTimeBuf));
+  lastTimeBuf[sizeof(lastTimeBuf) - 1] = '\0';
+  strncpy(lastDateBuf, dateBuf, sizeof(lastDateBuf));
+  lastDateBuf[sizeof(lastDateBuf) - 1] = '\0';
+
   // FreeSansBold9pt7b: cap height ~9px, baseline-to-top ~12px
-  tft.setFreeFont(&FreeSansBold9pt7b);
-  tft.setTextColor(statusColour, colourBg);
-  tft.setTextDatum(TC_DATUM);  // top-centre
+  statusSprite.fillSprite(colourBg);
+  statusSprite.setFreeFont(&FreeSansBold9pt7b);
+  statusSprite.setTextColor(statusColour, colourBg);
+  statusSprite.setTextDatum(TC_DATUM);  // top-centre
 
   // Time on first line (y = top of text)
-  tft.drawString(timeBuf, 120, STATUS_Y + 4);
+  statusSprite.drawString(timeBuf, 120, 4);
 
   // Date on second line
-  tft.drawString(dateBuf, 120, STATUS_Y + 24);
+  statusSprite.drawString(dateBuf, 120, 24);
+
+  tft.startWrite();
+  statusSprite.pushSprite(0, STATUS_Y);
+  tft.endWrite();
 }

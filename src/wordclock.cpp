@@ -122,12 +122,12 @@ void addWordToFrame(const byte theword[3]) {
 }
 
 // ── Render gridLit to sprite ──────────────────────────────────────────────────
-// Uses FreeSansBold9pt7b for each letter cell, lit vs dim.
+// Uses a monospaced GFX font so each cell reads with more even visual spacing.
 // Font available via TFT_eSPI / gfxfont.h when LOAD_GFXFF=1 — no explicit include needed.
 
 void renderGrid() {
   gridSprite.fillSprite(colourBg);
-  gridSprite.setFreeFont(&FreeSansBold9pt7b);
+  gridSprite.setFreeFont(&FreeMonoBold9pt7b);
   gridSprite.setTextDatum(MC_DATUM);
 
   for (int row = 0; row < GRID_ROWS; row++) {
@@ -145,10 +145,82 @@ void renderGrid() {
   }
 }
 
+// ── Animation helpers ─────────────────────────────────────────────────────────
+#if ANIM_TYPE == ANIM_FADE
+
+static uint16_t lerpColor565(uint16_t from, uint16_t to,
+                              uint8_t step, uint8_t steps) {
+  if (step == 0)     return from;
+  if (step >= steps) return to;
+  int rf = (from >> 11) & 0x1F, gf = (from >> 5) & 0x3F, bf = from & 0x1F;
+  int rt = (to   >> 11) & 0x1F, gt = (to   >> 5) & 0x3F, bt = to   & 0x1F;
+  return (uint16_t)(((rf + (rt - rf) * step / steps) << 11) |
+                    ((gf + (gt - gf) * step / steps) << 5)  |
+                     (bf + (bt - bf) * step / steps));
+}
+
+// Render one frame of the fade transition into gridSprite.
+// oLit = old lit state, nLit = new lit state.
+// phaseIn=false → phase 1: fade out cells leaving; phaseIn=true → phase 2: fade in cells arriving.
+static void renderGridFade(bool oLit[][GRID_COLS], bool nLit[][GRID_COLS],
+                           uint8_t step, uint8_t steps, bool phaseIn) {
+  gridSprite.fillSprite(colourBg);
+  gridSprite.setFreeFont(&FreeMonoBold9pt7b);
+  gridSprite.setTextDatum(MC_DATUM);
+
+  for (int row = 0; row < GRID_ROWS; row++) {
+    for (int col = 0; col < GRID_COLS; col++) {
+      char letter = GRID[row][col];
+      if (letter == '\0') break;
+
+      bool was = oLit[row][col], will = nLit[row][col];
+      uint16_t colour;
+
+      if (was && will) {
+        colour = colourLit;                                        // stays lit — always bright
+      } else if (!was && !will) {
+        colour = colourDim;                                        // stays dim  — always dim
+      } else if (!phaseIn) {
+        // Phase 1: fade out cells going dark; cells coming in stay dim
+        colour = (was && !will) ? lerpColor565(colourLit, colourDim, step, steps)
+                                : colourDim;
+      } else {
+        // Phase 2: fade in cells coming in; cells already gone stay dim
+        colour = (!was && will) ? lerpColor565(colourDim, colourLit, step, steps)
+                                : colourDim;
+      }
+
+      int cx = col * CELL_W + CELL_W / 2;
+      int cy = row * CELL_H + CELL_H / 2;
+      gridSprite.setTextColor(colour);
+      char buf[2] = { letter, '\0' };
+      gridSprite.drawString(buf, cx, cy);
+    }
+  }
+}
+
+static void animateFade(bool oLit[][GRID_COLS], bool nLit[][GRID_COLS]) {
+  // Phase 1 — fade out words leaving
+  for (uint8_t step = 0; step <= ANIM_FADE_STEPS; step++) {
+    renderGridFade(oLit, nLit, step, ANIM_FADE_STEPS, false);
+    pushGrid();
+    delay(ANIM_FADE_MS);
+  }
+  // Phase 2 — fade in words arriving
+  for (uint8_t step = 0; step <= ANIM_FADE_STEPS; step++) {
+    renderGridFade(oLit, nLit, step, ANIM_FADE_STEPS, true);
+    pushGrid();
+    delay(ANIM_FADE_MS);
+  }
+}
+
+#endif  // ANIM_TYPE == ANIM_FADE
+
 // ── showTimeWords — ported from Brett Oliver time.cpp ─────────────────────────
 // Exact logic preserved: individual minutes (not 5-min rounding),
 // MINUTE/MINUTES suffix, time-of-day (morning/afternoon/evening/night).
-void showTimeWords(uint8_t h, uint8_t m) {
+// computeTimeWords: populate gridLit only (no render). Used by animation path.
+static void computeTimeWords(uint8_t h, uint8_t m) {
   byte h2 = h;
 
   // "THE TIME IS" always lit
@@ -250,7 +322,10 @@ void showTimeWords(uint8_t h, uint8_t m) {
       addWordToFrame(w_a);
     }
   }
+}
 
+void showTimeWords(uint8_t h, uint8_t m) {
+  computeTimeWords(h, m);
   renderGrid();
 }
 
@@ -261,7 +336,7 @@ static XPT2046_Touchscreen ts(TOUCH_CS, 255);  // 255 = no IRQ
 void initTouch() {
   touchSPI.begin(TOUCH_SCLK, TOUCH_MISO, TOUCH_MOSI, TOUCH_CS);
   ts.begin(touchSPI);
-  ts.setRotation(0);  // match portrait display rotation
+  ts.setRotation(DISPLAY_FLIP ? 2 : 0);  // match display rotation
   DBG_INFO("Touch initialised (VSPI CLK=%d MISO=%d MOSI=%d CS=%d)",
            TOUCH_SCLK, TOUCH_MISO, TOUCH_MOSI, TOUCH_CS);
 }
@@ -329,7 +404,17 @@ void wordclockTick() {
 
   DBG_INFO("[WordClock] %02d:%02d", h, m);
 
+#if ANIM_TYPE == ANIM_FADE
+  {
+    bool oLit[GRID_ROWS][GRID_COLS];
+    memcpy(oLit, gridLit, sizeof(gridLit));
+    clearFrame();
+    computeTimeWords(h, m);
+    animateFade(oLit, gridLit);
+  }
+#else
   clearFrame();
   showTimeWords(h, m);
   pushGrid();
+#endif
 }
