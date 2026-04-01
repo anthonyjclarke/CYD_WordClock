@@ -2,7 +2,7 @@
 // config.h — CYD WordClock user-tuneable constants
 
 // ── Firmware version ──────────────────────────────────────────────────────────
-#define FW_VERSION          "1.0"
+#define FW_VERSION          "1.1"
 
 // ── Display ───────────────────────────────────────────────────────────────────
 #define DISPLAY_FLIP        1           // 1 = flip portrait 180° (USB connector at top)

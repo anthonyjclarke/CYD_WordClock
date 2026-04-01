@@ -6,6 +6,9 @@
 #include "config.h"
 #include "debug.h"
 #include "display.h"
+#include "settings.h"
+#include "runtime.h"
+#include "webui.h"
 #include "wordclock.h"
 
 TFT_eSPI tft;
@@ -14,7 +17,7 @@ Timezone myTZ;
 // ── Display init ──────────────────────────────────────────────────────────────
 static void initDisplay() {
   tft.init();
-  tft.setRotation(SCREEN_ROTATION);
+  tft.setRotation(currentScreenRotation());
 
   ledcSetup(0, 5000, 8);
   ledcAttachPin(TFT_BL, 0);
@@ -22,8 +25,8 @@ static void initDisplay() {
 
   initColours();
 
-  ledcWrite(0, BRIGHTNESS_DEFAULT);
-  currentBrightness = BRIGHTNESS_DEFAULT;
+  ledcWrite(0, settings().brightnessDefault);
+  currentBrightness = settings().brightnessDefault;
 
   DBG_INFO("Display initialised %dx%d rotation=%d",
            tft.width(), tft.height(), SCREEN_ROTATION);
@@ -61,10 +64,10 @@ static void initTime() {
     DBG_WARN("Time: NTP sync failed — clock will show boot time");
   }
 
-  if (!myTZ.setLocation(F(NTP_TIMEZONE))) {
+  if (!myTZ.setLocation(settings().timezone)) {
     DBG_WARN("Time: Olson lookup failed — applying POSIX fallback: %s",
-             NTP_POSIX_FALLBACK);
-    myTZ.setPosix(NTP_POSIX_FALLBACK);
+             settings().posixFallback);
+    myTZ.setPosix(settings().posixFallback);
   }
 
   DBG_INFO("Time synced: %s  tz=%s offset=%s",
@@ -78,10 +81,13 @@ void setup() {
   Serial.begin(115200);
   DBG_INFO("=== CYD WordClock v" FW_VERSION " starting ===");
 
+  initSettings();
   initDisplay();
   initTouch();
   initWiFi();
   initTime();
+  initWebUi();
+  applyRuntimeSettings(false);
 
   DBG_INFO("Free heap: %d bytes", ESP.getFreeHeap());
 
@@ -94,5 +100,7 @@ void setup() {
 // ── loop ──────────────────────────────────────────────────────────────────────
 void loop() {
   events();           // ezTime NTP housekeeping
+  webUiTick();
+  processPendingSystemActions();
   wordclockTick();
 }
