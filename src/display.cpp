@@ -1,6 +1,7 @@
 #include "display.h"
 #include "config.h"
 #include "debug.h"
+#include "settings.h"
 #include <Arduino.h>
 // FreeSansBold9pt7b is pulled in by TFT_eSPI via gfxfont.h when LOAD_GFXFF=1
 // No explicit include needed — use &FreeSansBold9pt7b directly.
@@ -12,6 +13,8 @@ uint8_t  currentBrightness = BRIGHTNESS_DEFAULT;
 uint16_t colourLit = 0;
 uint16_t colourDim = 0;
 uint16_t colourBg  = 0;
+static char lastTimeBuf[9] = "";
+static char lastDateBuf[16] = "";
 
 void initColours() {
   colourLit = tft.color565(COLOUR_LIT_R,  COLOUR_LIT_G,  COLOUR_LIT_B);
@@ -56,6 +59,11 @@ void setBrightness(uint8_t pwm) {
   ledcWrite(0, pwm);
 }
 
+void invalidateStatusStrip() {
+  lastTimeBuf[0] = '\0';
+  lastDateBuf[0] = '\0';
+}
+
 void fade_down() {
   for (int i = currentBrightness; i >= 0; i -= 8) {
     ledcWrite(0, (uint8_t)i);
@@ -68,10 +76,11 @@ void fade_down() {
 }
 
 void updateBrightness() {
-#if LDR_ENABLED
   static uint16_t buf[LDR_SAMPLES] = {};
   static byte     idx  = 0;
   static bool     full = false;
+
+  if (!settings().ldrEnabled) return;
 
   buf[idx] = (uint16_t)analogRead(LDR_PIN);
   idx = (idx + 1) % LDR_SAMPLES;
@@ -85,13 +94,12 @@ void updateBrightness() {
   uint16_t avg = (uint16_t)(sum / count);
 
   uint8_t b = (uint8_t)constrain(
-    map((long)avg, (long)LDR_DARK, (long)LDR_BRIGHT,
-        (long)BRIGHTNESS_MIN, (long)BRIGHTNESS_MAX),
-    (long)BRIGHTNESS_MIN, (long)BRIGHTNESS_MAX
+    map((long)avg, (long)settings().ldrDark, (long)settings().ldrBright,
+        (long)settings().brightnessMin, (long)settings().brightnessMax),
+    (long)settings().brightnessMin, (long)settings().brightnessMax
   );
   setBrightness(b);
   DBG_VERBOSE("LDR avg=%u → brightness=%u", (unsigned)avg, (unsigned)b);
-#endif
 }
 
 void drawStatusStrip(uint8_t h, uint8_t m, uint8_t s,
@@ -99,9 +107,6 @@ void drawStatusStrip(uint8_t h, uint8_t m, uint8_t s,
   static const char *dayAbbr[7]  = {"SUN","MON","TUE","WED","THU","FRI","SAT"};
   static const char *monAbbr[12] = {"JAN","FEB","MAR","APR","MAY","JUN",
                                      "JUL","AUG","SEP","OCT","NOV","DEC"};
-  static char lastTimeBuf[9] = "";
-  static char lastDateBuf[16] = "";
-
   uint16_t statusColour = tft.color565(COLOUR_STATUS_R, COLOUR_STATUS_G, COLOUR_STATUS_B);
 
   // Time line: HH:MM:SS centred

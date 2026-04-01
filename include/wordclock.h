@@ -21,6 +21,9 @@ void addWordToFrame(const byte theword[3]);
 // Render gridLit[][] to gridSprite. Call pushGrid() after to send to screen.
 void renderGrid();
 
+// Access the static letter grid row text for external renderers such as the WebUI.
+const char* getGridRowText(uint8_t row);
+
 // ── Time logic (mirrors Brett's time.cpp showTimeWords()) ─────────────────────
 // Compute which words to light for the given 24h hour and minute.
 // Calls clearFrame() + addWordToFrame() internally, then renderGrid().
@@ -31,7 +34,9 @@ void initTouch();
 
 // Poll touch hardware. Handles long-press brightness cycle.
 void handleTouch();
+void updateTouchRotation(uint8_t rotation);
 
 // ── Main loop tick ────────────────────────────────────────────────────────────
 // Call from loop(). Handles time check, conditional redraw, touch, LDR.
 void wordclockTick();
+void redrawClockNow();

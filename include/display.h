@@ -36,3 +36,6 @@ void fade_down();
 // h=24h hour, m=minute, s=second, dow=day-of-week(0=Sun), day, month, year
 void drawStatusStrip(uint8_t h, uint8_t m, uint8_t s,
                      uint8_t dow, uint8_t day, uint8_t month, uint16_t year);
+
+// Force the next status strip draw to repaint even if the text is unchanged.
+void invalidateStatusStrip();

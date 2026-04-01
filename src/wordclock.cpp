@@ -2,6 +2,7 @@
 #include "display.h"
 #include "config.h"
 #include "debug.h"
+#include "settings.h"
 
 #include <XPT2046_Touchscreen.h>
 #include <SPI.h>
@@ -145,8 +146,9 @@ void renderGrid() {
   }
 }
 
-// ── Animation helpers ─────────────────────────────────────────────────────────
-#if ANIM_TYPE == ANIM_FADE
+const char* getGridRowText(uint8_t row) {
+  return (row < GRID_ROWS) ? GRID[row] : "";
+}
 
 static uint16_t lerpColor565(uint16_t from, uint16_t to,
                               uint8_t step, uint8_t steps) {
@@ -213,8 +215,6 @@ static void animateFade(bool oLit[][GRID_COLS], bool nLit[][GRID_COLS]) {
     delay(ANIM_FADE_MS);
   }
 }
-
-#endif  // ANIM_TYPE == ANIM_FADE
 
 // ── showTimeWords — ported from Brett Oliver time.cpp ─────────────────────────
 // Exact logic preserved: individual minutes (not 5-min rounding),
@@ -336,9 +336,13 @@ static XPT2046_Touchscreen ts(TOUCH_CS, 255);  // 255 = no IRQ
 void initTouch() {
   touchSPI.begin(TOUCH_SCLK, TOUCH_MISO, TOUCH_MOSI, TOUCH_CS);
   ts.begin(touchSPI);
-  ts.setRotation(DISPLAY_FLIP ? 2 : 0);  // match display rotation
+  ts.setRotation(currentScreenRotation());  // match display rotation
   DBG_INFO("Touch initialised (VSPI CLK=%d MISO=%d MOSI=%d CS=%d)",
            TOUCH_SCLK, TOUCH_MISO, TOUCH_MOSI, TOUCH_CS);
+}
+
+void updateTouchRotation(uint8_t rotation) {
+  ts.setRotation(rotation);
 }
 
 static uint32_t touchDownMs  = 0;
@@ -359,17 +363,37 @@ void handleTouch() {
     touchDownMs  = now;
   } else if ((now - touchDownMs) >= TOUCH_LONG_PRESS_MS) {
     touchWasDown = false;
-    const uint8_t levels[4] = {60, 120, 180, 255};
-    brightnessStep = (brightnessStep + 1) % BRIGHTNESS_STEPS;
-    setBrightness(levels[brightnessStep]);
+    uint8_t steps = max<uint8_t>(settings().brightnessSteps, 1);
+    brightnessStep = (brightnessStep + 1) % steps;
+    uint8_t level = settings().brightnessMin;
+    if (steps > 1) {
+      level = settings().brightnessMin +
+              ((uint32_t)(settings().brightnessMax - settings().brightnessMin) * brightnessStep) / (steps - 1);
+    }
+    setBrightness(level);
     DBG_INFO("Long press: brightness step=%d pwm=%d",
-             brightnessStep, levels[brightnessStep]);
+             brightnessStep, level);
     delay(TOUCH_DEBOUNCE_MS);
   }
 }
 
 // ── Main tick ─────────────────────────────────────────────────────────────────
 extern Timezone myTZ;
+
+void redrawClockNow() {
+  uint8_t h = (uint8_t)myTZ.hour();
+  uint8_t m = (uint8_t)myTZ.minute();
+  uint8_t s = (uint8_t)myTZ.second();
+
+  clearFrame();
+  showTimeWords(h, m);
+  pushGrid();
+  drawStatusStrip(h, m, s,
+                  (uint8_t)(myTZ.weekday() - 1),
+                  (uint8_t)myTZ.day(),
+                  (uint8_t)myTZ.month(),
+                  (uint16_t)myTZ.year());
+}
 
 void wordclockTick() {
   static uint8_t  lastMin  = 255;
@@ -404,17 +428,16 @@ void wordclockTick() {
 
   DBG_INFO("[WordClock] %02d:%02d", h, m);
 
-#if ANIM_TYPE == ANIM_FADE
-  {
+  if (settings().animType == ANIM_FADE) {
     bool oLit[GRID_ROWS][GRID_COLS];
     memcpy(oLit, gridLit, sizeof(gridLit));
     clearFrame();
     computeTimeWords(h, m);
     animateFade(oLit, gridLit);
+    return;
   }
-#else
+
   clearFrame();
   showTimeWords(h, m);
   pushGrid();
-#endif
 }
