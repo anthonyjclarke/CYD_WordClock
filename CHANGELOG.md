@@ -1,6 +1,6 @@
 # Changelog
 
-## [1.2.0] Unreleased
+## [1.2.0] 09-10-2026
 
 ### Added
 - **Browser installer** at <https://anthonyjclarke.github.io/CYD_WordClock/>
