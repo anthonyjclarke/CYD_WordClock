@@ -11,12 +11,40 @@ Same grid layout and word logic — adapted for the CYD's ILI9341 TFT display.
 
 ESP32-2432S028R (Cheap Yellow Display) — ILI9341 240×320, XPT2046 touch, LDR.
 
-## Setup
+## Install
 
-1. Copy `include/secrets.h` and fill in your WiFi credentials.
-2. Flash via PlatformIO (`pio run -t upload`).
-3. On first boot, connect to the `CYD-WordClock` AP and configure WiFi.
-4. Time syncs via NTP automatically. Timezone: Australia/Sydney.
+**[anthonyjclarke.github.io/CYD_WordClock][installer]** installs the latest
+release from the browser – no PlatformIO, no drivers to build. It needs desktop
+Chrome, Edge or Opera.
+
+1. Pick your board – CYD 2.8″ (ESP32-2432S028R).
+2. Plug it in with a USB data cable, click **Connect & install** and choose its
+   port.
+3. On a new board, say yes to erasing it. When flashing finishes, choose
+   **Configure WiFi** and pick your network. Without a browser, join the
+   `CYD-WordClock` hotspot instead and set WiFi there.
+4. **Visit device** opens the clock's web page. Time syncs via NTP; the default
+   timezone is Australia/Sydney, changeable in the Web UI.
+
+A board already running this firmware is recognised and offered **Update**,
+which keeps its settings and WiFi. Each [release][releases] also carries the
+images for flashing by hand. `*-firmware.bin` is the app alone, for esptool at
+`0x10000` (this firmware has no web update page). `*-merged.bin` is a clean
+install at `0x0` with esptool, and it **erases settings and WiFi**.
+
+No API keys or accounts are needed.
+
+[installer]: https://anthonyjclarke.github.io/CYD_WordClock/
+[releases]: https://github.com/anthonyjclarke/CYD_WordClock/releases
+
+## Building
+
+1. Build and flash with PlatformIO: `pio run -t upload` (env `wordclock_cyd`,
+   pinned to `espressif32@6.12.0`).
+2. On first boot, set WiFi from the `CYD-WordClock` hotspot.
+
+Release images come only from CI on a `v*` tag. Never publish a local build –
+a local `.pio` image can contain your own `include/secrets.h`.
 
 ## Display
 

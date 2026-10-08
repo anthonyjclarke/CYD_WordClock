@@ -3,6 +3,7 @@
 #include <SPI.h>
 #include <WiFiManager.h>
 #include <ezTime.h>
+#include <esp_ota_ops.h>
 #include "config.h"
 #include "debug.h"
 #include "display.h"
@@ -10,6 +11,7 @@
 #include "runtime.h"
 #include "webui.h"
 #include "wordclock.h"
+#include "network/improv_setup.h"
 
 TFT_eSPI tft;
 Timezone myTZ;
@@ -45,8 +47,22 @@ static void initWiFi() {
   showStatus("Connecting WiFi...");
   WiFiManager wm;
   wm.setConfigPortalTimeout(WIFI_TIMEOUT_S);
+#if IMPROV_SETUP_ENABLED
+  // Non-blocking portal so Improv-Serial (installer "Configure WiFi") is
+  // serviced alongside it; setup() still waits here as before.
+  wm.setConfigPortalBlocking(false);
+#endif
 
-  if (!wm.autoConnect(WIFI_AP_NAME)) {
+  bool connected = wm.autoConnect(AP_NAME);
+#if IMPROV_SETUP_ENABLED
+  while (!connected && wm.getConfigPortalActive()) {
+    if (wm.process()) { connected = true; break; }
+    improvTick();  // restarts once Improv credentials connect
+    delay(5);
+  }
+#endif
+
+  if (!connected) {
     DBG_WARN("WiFi: connect timeout, continuing offline");
     showStatus("WiFi offline     ");
   } else {
@@ -79,7 +95,9 @@ static void initTime() {
 // ── setup ─────────────────────────────────────────────────────────────────────
 void setup() {
   Serial.begin(115200);
-  DBG_INFO("=== CYD WordClock v" FW_VERSION " starting ===");
+  improvBegin();
+  DBG_INFO("=== CYD WordClock v" FIRMWARE_VERSION " starting ===");
+  DBG_INFO("Running from %s", esp_ota_get_running_partition()->label);
 
   initSettings();
   initDisplay();
@@ -99,6 +117,7 @@ void setup() {
 
 // ── loop ──────────────────────────────────────────────────────────────────────
 void loop() {
+  improvTick();       // web installer over USB; must run at least every ~1 s
   events();           // ezTime NTP housekeeping
   webUiTick();
   processPendingSystemActions();

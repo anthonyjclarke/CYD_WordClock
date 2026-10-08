@@ -1,6 +1,39 @@
 # Changelog
 
-## [1.1] 2026-04-01
+## [1.2.0] 09-10-2026
+
+### Added
+- **Browser installer** at <https://anthonyjclarke.github.io/CYD_WordClock/>
+  (ESP Web Tools, shared [cyd-web-installer](https://github.com/anthonyjclarke/cyd-web-installer)
+  tooling). Install, erase and WiFi setup from Chrome or Edge – no PlatformIO needed.
+- **Improv-Serial, always on** (`src/network/improv_setup.*`, vendored
+  `lib/ImprovWiFi` with the parser fix). The installer's **Configure WiFi**
+  works over USB, and a board already running this firmware is offered
+  **Update**, which keeps settings and WiFi. Serviced in the WiFi portal loop,
+  in `loop()` and during the fade animation.
+- **Release workflow** `.github/workflows/firmware.yml`: CI builds on every push;
+  a `v*` tag on `main` publishes the release (`*-firmware.bin`, `*-merged.bin`,
+  `SHA256SUMS.txt`) and the installer page.
+- `tools/merge_bin.py` post-build script (`flash_parts.json`, `firmware-merged.bin`).
+- Boot log line `Running from app0|app1`.
+- `PROJECT_NAME` (`CYD_WordClock`, frozen) and the Brett Oliver "Based on" credit
+  in `config.h`, both shown on the installer page.
+
+### Changed
+- Platform pinned to `espressif32@6.12.0` (arduino-esp32 2.0.17); the unpinned
+  platform no longer builds.
+- `FW_VERSION` renamed to `FIRMWARE_VERSION` (now semver, `1.2.0`);
+  `WIFI_AP_NAME` renamed to `AP_NAME`.
+- WiFiManager portal runs non-blocking so Improv is serviced alongside it.
+- `WIFI_TIMEOUT_S` is 0: the setup portal stays up until WiFi is configured
+  instead of falling back to offline after 60 s.
+- README: Install and Building sections; the stale `secrets.h` step is gone
+  (no secrets are used).
+
+Partition table unchanged (standard dual-OTA), so an Update keeps all settings;
+no erase is needed.
+
+## [1.1] 01-04-2026
 
 ### Added
 - **Web UI** (`src/webui.cpp`, `include/webui.h`) — ESP32 `WebServer` on port 80
@@ -46,7 +79,7 @@
 
 ---
 
-## [1.0] 2026-03-19
+## [1.0] 19-03-2026
 
 ### Added
 - Initial release: word clock on CYD ILI9341 240×320 portrait display

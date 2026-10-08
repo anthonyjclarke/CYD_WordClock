@@ -474,7 +474,7 @@ String buildStateJson() {
   json += "\"timezone\":\"" + jsonEscape(String(settings().timezone)) + "\"";
   json += "},";
   json += "\"system\":{";
-  json += "\"firmware\":\"" FW_VERSION "\",";
+  json += "\"firmware\":\"" FIRMWARE_VERSION "\",";
   json += "\"uptime_s\":" + String(millis() / 1000UL) + ",";
   json += "\"wifi_status\":\"" + String(WiFi.status() == WL_CONNECTED ? "connected" : "offline") + "\",";
   json += "\"ssid\":\"" + jsonEscape(WiFi.SSID()) + "\",";

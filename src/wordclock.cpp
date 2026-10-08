@@ -3,6 +3,7 @@
 #include "config.h"
 #include "debug.h"
 #include "settings.h"
+#include "network/improv_setup.h"
 
 #include <XPT2046_Touchscreen.h>
 #include <SPI.h>
@@ -206,12 +207,14 @@ static void animateFade(bool oLit[][GRID_COLS], bool nLit[][GRID_COLS]) {
   for (uint8_t step = 0; step <= ANIM_FADE_STEPS; step++) {
     renderGridFade(oLit, nLit, step, ANIM_FADE_STEPS, false);
     pushGrid();
+    improvTick();  // the ~1 s crossfade would otherwise delay Improv replies
     delay(ANIM_FADE_MS);
   }
   // Phase 2 — fade in words arriving
   for (uint8_t step = 0; step <= ANIM_FADE_STEPS; step++) {
     renderGridFade(oLit, nLit, step, ANIM_FADE_STEPS, true);
     pushGrid();
+    improvTick();  // the ~1 s crossfade would otherwise delay Improv replies
     delay(ANIM_FADE_MS);
   }
 }

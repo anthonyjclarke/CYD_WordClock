@@ -5,3 +5,6 @@ include/secrets.h
 *.elf
 *.map
 .DS_Store
+
+# Web installer site, assembled locally by make_manifests.py - never publish (local builds see secrets.h)
+_site/

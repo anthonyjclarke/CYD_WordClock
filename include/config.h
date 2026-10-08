@@ -1,8 +1,14 @@
 #pragma once
 // config.h — CYD WordClock user-tuneable constants
 
-// ── Firmware version ──────────────────────────────────────────────────────────
-#define FW_VERSION          "1.1"
+// ── Firmware identity ─────────────────────────────────────────────────────────
+// #define, not constexpr: pasted into string literals ("v" FIRMWARE_VERSION).
+// CI reads both from here; a release tag must equal "v" + FIRMWARE_VERSION.
+#define FIRMWARE_VERSION    "1.2.0"
+#define PROJECT_NAME        "CYD_WordClock"  // frozen: Improv + installer manifest name
+#define UPSTREAM_PROJECT    "Word Clock"
+#define UPSTREAM_AUTHOR     "Brett Oliver"
+#define UPSTREAM_REPO_URL   "https://www.brettoliver.org.uk/Word_Clock/Word_Clock.htm"
 
 // ── Display ───────────────────────────────────────────────────────────────────
 #define DISPLAY_FLIP        1           // 1 = flip portrait 180° (USB connector at top)
@@ -50,8 +56,13 @@
 #define BRIGHTNESS_STEPS    4
 
 // ── WiFi ──────────────────────────────────────────────────────────────────────
-#define WIFI_AP_NAME        "CYD-WordClock"
-#define WIFI_TIMEOUT_S      60
+#define AP_NAME             "CYD-WordClock"  // setup hotspot; shown on the installer page
+#define WIFI_TIMEOUT_S      0           // portal timeout; 0 = stay up until configured
+
+// ── Improv-Serial (web installer: Configure WiFi + Update) ────────────────────
+// Always on: ESP Web Tools offers Update only if Improv answers within 1.5 s.
+#define IMPROV_SETUP_ENABLED 1
+#define IMPROV_DEVICE_PREFIX "WordClock"  // installer shows WordClock-XXXX (MAC)
 
 // ── NTP / Time ────────────────────────────────────────────────────────────────
 #define NTP_TIMEZONE        "Australia/Sydney"
