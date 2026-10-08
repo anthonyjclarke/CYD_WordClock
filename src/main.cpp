@@ -46,7 +46,7 @@ static void initWiFi() {
   WiFiManager wm;
   wm.setConfigPortalTimeout(WIFI_TIMEOUT_S);
 
-  if (!wm.autoConnect(WIFI_AP_NAME)) {
+  if (!wm.autoConnect(AP_NAME)) {
     DBG_WARN("WiFi: connect timeout, continuing offline");
     showStatus("WiFi offline     ");
   } else {
@@ -79,7 +79,7 @@ static void initTime() {
 // ── setup ─────────────────────────────────────────────────────────────────────
 void setup() {
   Serial.begin(115200);
-  DBG_INFO("=== CYD WordClock v" FW_VERSION " starting ===");
+  DBG_INFO("=== CYD WordClock v" FIRMWARE_VERSION " starting ===");
 
   initSettings();
   initDisplay();
