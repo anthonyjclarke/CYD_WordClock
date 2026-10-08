@@ -1,6 +1,6 @@
 # Project: CYD_WordClock
 
-Word clock for ESP32-2432S028R (CYD) displaying time as highlighted words in a 16×14 letter grid on ILI9341 240×320 TFT (portrait). Word logic ported from Brett Oliver's wordclock_v4_9. Current version: v1.0.
+Word clock for ESP32-2432S028R (CYD) displaying time as highlighted words in a 16×14 letter grid on ILI9341 240×320 TFT (portrait). Word logic ported from Brett Oliver's wordclock_v4_9. Version lives only in `FIRMWARE_VERSION` (`include/config.h`); `dev` carries a `-dev` suffix.
 
 ## Hardware
 
@@ -54,8 +54,8 @@ after `initTouch()`, or TFT_eSPI's own `getTouch()` is used.
 *Fix:* add `-DUSE_HSPI_PORT` (MOSI 13 / MISO 12 / SCLK 14 / CS 15 are HSPI's native
 pins), remove `-DTOUCH_CS=33`, give the touch CS its own name in `config.h`
 (`wordclock.cpp` uses `TOUCH_CS` for the constructor and `touchSPI.begin()`), then
-test touch on hardware. Checked against arduino-esp32 2.0.17 source; unpinned
-`platform = espressif32` resolves to 3.3.7 here, whose SPI code was not read. Found
+test touch on hardware. Checked against arduino-esp32 2.0.17 source, which the
+pinned `espressif32@6.12.0` uses — never unpin it (3.x fails to build). Found
 while porting CYD_AnimatedPixelClock, where the shared bus turned out **not** to be
 the cause of dead touch (a faulty board), so do not treat it as a known failure.
 
@@ -70,3 +70,12 @@ the cause of dead touch (a faulty board), so do not treat it as a known failure.
 ## WebUI & API
 
 Served on port 80. SPA polls `/api/state` every second for live grid/status preview. Reset endpoints (`/api/reset/settings`, `/api/reset/wifi`, `/api/reset/all`) queue actions safely. Config POST at `/api/config` applies immediately.
+
+## Web installer and releases
+
+Release images come only from `.github/workflows/firmware.yml` on a `v*` tag on `main` (shared cyd-web-installer tooling); never publish a local build.
+
+- **Never put `firmware-merged.bin` in a manifest** — it fills NVS with `0xFF`, so an Update would wipe WiFi and settings.
+- **`PROJECT_NAME` and the partition table are frozen** — Update is offered only when Improv's name matches the manifest.
+- **Never put Improv back in `lib_deps`** — `lib/ImprovWiFi` is vendored with a parser fix.
+- **`improvTick()` must run at least every ~1 s** — keep it in `loop()`, the portal loop and `animateFade()`.
