@@ -57,7 +57,12 @@
 
 // ── WiFi ──────────────────────────────────────────────────────────────────────
 #define AP_NAME             "CYD-WordClock"  // setup hotspot; shown on the installer page
-#define WIFI_TIMEOUT_S      0
+#define WIFI_TIMEOUT_S      0           // portal timeout; 0 = stay up until configured
+
+// ── Improv-Serial (web installer: Configure WiFi + Update) ────────────────────
+// Always on: ESP Web Tools offers Update only if Improv answers within 1.5 s.
+#define IMPROV_SETUP_ENABLED 1
+#define IMPROV_DEVICE_PREFIX "WordClock"  // installer shows WordClock-XXXX (MAC)
 
 // ── NTP / Time ────────────────────────────────────────────────────────────────
 #define NTP_TIMEZONE        "Australia/Sydney"
