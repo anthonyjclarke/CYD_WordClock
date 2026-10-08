@@ -51,7 +51,7 @@
 
 // ── WiFi ──────────────────────────────────────────────────────────────────────
 #define WIFI_AP_NAME        "CYD-WordClock"
-#define WIFI_TIMEOUT_S      60
+#define WIFI_TIMEOUT_S      0
 
 // ── NTP / Time ────────────────────────────────────────────────────────────────
 #define NTP_TIMEZONE        "Australia/Sydney"
