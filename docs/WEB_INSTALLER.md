@@ -54,3 +54,10 @@ flashed from PlatformIO as `1.2.0-dev.0`, an uncommitted edit since reverted.
 Connect offered **Update CYD_WordClock** with no erase question. After the
 Update: `v1.2.0-dev`, `Running from app0`, WiFi reconnected with no setup,
 `brightness_default` still 120. The value was then put back to 180.
+
+**Release check (v1.2.0, 09-10-2026).** Run 37861101957 published the release
+and Pages; `SHA256SUMS.txt` verifies, and the Pages `firmware.bin` matches the
+release asset. On the same board (then `1.2.0-dev`), the live page offered
+**Update CYD_WordClock** with no erase question. Afterwards `/api/state` reported
+firmware `1.2.0`. Boot log: `v1.2.0`, `Running from app0`, WiFi connected
+from saved credentials at the same IP, NTP synced.
