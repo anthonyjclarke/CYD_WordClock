@@ -4,7 +4,7 @@
 // ── Firmware identity ─────────────────────────────────────────────────────────
 // #define, not constexpr: pasted into string literals ("v" FIRMWARE_VERSION).
 // CI reads both from here; a release tag must equal "v" + FIRMWARE_VERSION.
-#define FIRMWARE_VERSION    "1.2.1"
+#define FIRMWARE_VERSION    "1.3.0-dev"
 #define PROJECT_NAME        "CYD_WordClock"  // frozen: Improv + installer manifest name
 #define UPSTREAM_PROJECT    "Word Clock"
 #define UPSTREAM_AUTHOR     "Brett Oliver"
