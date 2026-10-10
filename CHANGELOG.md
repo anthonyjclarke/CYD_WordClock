@@ -1,6 +1,6 @@
 # Changelog
 
-## [1.2.1] Unreleased
+## [1.2.1] 10-10-2026
 
 ### Fixed
 - **Installer Connect sometimes offered Install instead of Update.** ESP Web
