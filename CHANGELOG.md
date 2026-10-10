@@ -1,5 +1,16 @@
 # Changelog
 
+## [1.2.1] 10-10-2026
+
+### Fixed
+- **Installer Connect sometimes offered Install instead of Update.** ESP Web
+  Tools only parses an Improv packet that starts a line, so noise on port open
+  (NULs, part of a debug line) swallowed the reply. The vendored
+  `lib/ImprovWiFi` now writes a newline before each packet (re-copied from
+  cyd-web-installer 1.0.1, `efe7cbd`). Boards on 1.2.0 that are offered only
+  Install can still be updated: choose Install and say **no** to erase, which
+  keeps settings and WiFi.
+
 ## [1.2.0] 09-10-2026
 
 ### Added

@@ -54,3 +54,21 @@ flashed from PlatformIO as `1.2.0-dev.0`, an uncommitted edit since reverted.
 Connect offered **Update CYD_WordClock** with no erase question. After the
 Update: `v1.2.0-dev`, `Running from app0`, WiFi reconnected with no setup,
 `brightness_default` still 120. The value was then put back to 180.
+
+**Release check (v1.2.0, 09-10-2026).** Run 37861101957 published the release
+and Pages; `SHA256SUMS.txt` verifies, and the Pages `firmware.bin` matches the
+release asset. On the same board (then `1.2.0-dev`), the live page offered
+**Update CYD_WordClock** with no erase question. Afterwards `/api/state` reported
+firmware `1.2.0`. Boot log: `v1.2.0`, `Running from app0`, WiFi connected
+from saved credentials at the same IP, NTP synced.
+
+**1.2.1 patch – case 2 re-run (10-10-2026).** Vendored `lib/ImprovWiFi`
+re-copied from cyd-web-installer `efe7cbd`: each Improv packet now starts on a
+new line, because ESP Web Tools' Improv SDK drops a reply that follows noise on
+port open, and Connect then intermittently offered Install. Same board
+(MAC `b0:cb:d8:da:ae:8c`, which had since run CYD_BusStop_NSW). Flashed from
+PlatformIO as `1.2.1-dev.0`, an uncommitted edit since reverted, then
+`brightness_default` set to 120. From the CI preview of `1.2.1-dev` (run
+38025291782), Connect offered **Update CYD_WordClock** with no erase question.
+After the Update: `v1.2.1-dev`, `Running from app0`, WiFi reconnected with no
+setup, `brightness_default` still 120. The value was then put back to 180.
